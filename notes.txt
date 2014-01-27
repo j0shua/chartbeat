@@ -1,0 +1,31 @@
+web server
+    get request
+        parse QS for host
+        look up last 2 fetches filter based on current # visitors > prev # visitors
+        respond
+
+separate service running via cron every 5 seconds; just sleep() and use upstart / dameontools / monit
+    make request for data
+    save into memcache
+    sleep
+
+Challenge Part 2:
+production changes:
+    1) assure fetcher doesn't fail by using upstart
+    2) run multiple instances of Tornado on diff ports (such as 4 on ports 8000-8003) 
+        and use nginx (or another load balancer) in front of them to load balance 
+        see example in Tornado documentation (http://www.tornadoweb.org/en/stable/overview.html?highlight=load%20balance)
+    3) would also run multiple pooled instances of nginx for redundancy there 
+    3) split memcache onto separate server + add multiple 'pooled' memcache instances in case of failure
+
+bottlenecks:
+    1) backend call is slow
+        because of this having one script sleep instead of forking is prob better since if there is nothing to fetch there is no reason to fork another GET request since nothing came back yet
+
+faster:
+    1) storing the json objects in a diff format (keyed by path etc) is faster for lookups benchmark gains
+    2) could put Varnish or Apache Traffic Server in front of ngingx to ease load maybe faster as well?
+    3) there are 3 separate parts here and as long as they are redundant & fault tolerants we can recover from any failure:
+        a) fetcher can die: use upstart / dameon tools to auto restart it
+        b) nginx can die: use multiple instances and upstart for each
+        c) Tornado can die: again use multiple instances and upstart for each

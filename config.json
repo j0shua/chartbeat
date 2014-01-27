@@ -1,0 +1,7 @@
+{
+    "hosts" : ["gizmodo.com", "avc.com", "someecards.com"],
+    "apiurl": "http://api.chartbeat.com/live/toppages/",
+    "apikey": "317a25eccba186e0f6b558f45214c0e7",
+    "limit" : 100
+}
+    
